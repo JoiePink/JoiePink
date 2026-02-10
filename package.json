@@ -1,0 +1,49 @@
+{
+  "name": "vite-fast-template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host --open",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@unhead/vue": "catalog:utils",
+    "@unocss/reset": "catalog:style",
+    "@vueuse/core": "catalog:utils",
+    "dayjs": "catalog:utils",
+    "diacritics": "catalog:utils",
+    "markdown-it-github-mention-card": "catalog:utils",
+    "vue": "catalog:vue-core",
+    "vue-router": "catalog:vue-core"
+  },
+  "devDependencies": {
+    "@iconify/json": "catalog:style",
+    "@shikijs/markdown-it": "catalog:utils",
+    "@shikijs/transformers": "catalog:utils",
+    "@shikijs/twoslash": "catalog:utils",
+    "@types/diacritics": "catalog:utils",
+    "@types/markdown-it-link-attributes": "catalog:utils",
+    "@types/node": "catalog:utils",
+    "@unocss/preset-icons": "catalog:style",
+    "@vitejs/plugin-vue": "catalog:build",
+    "@vue/tsconfig": "catalog:utils",
+    "markdown-it-anchor": "catalog:utils",
+    "markdown-it-link-attributes": "catalog:utils",
+    "markdown-it-magic-link": "catalog:utils",
+    "markdown-it-table-of-contents": "catalog:utils",
+    "shiki": "catalog:utils",
+    "typescript": "catalog:utils",
+    "unocss": "catalog:style",
+    "unplugin-auto-import": "catalog:utils",
+    "unplugin-icons": "catalog:utils",
+    "unplugin-vue-components": "catalog:utils",
+    "unplugin-vue-markdown": "catalog:utils",
+    "unplugin-vue-router": "catalog:utils",
+    "vite": "catalog:build",
+    "vite-plugin-inspect": "catalog:build",
+    "vite-plugin-optimize-exclude": "catalog:build",
+    "vue-tsc": "catalog:code-quality"
+  }
+}

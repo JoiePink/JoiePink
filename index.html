@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>vite-fast-template</title>
+        <script>
+            ;(function () {
+                const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+                const setting = localStorage.getItem('vueuse-color-scheme') || 'auto'
+                const isDark = setting === 'dark' || (prefersDark && setting !== 'light')
+                if (isDark)
+                    document.documentElement.classList.toggle('dark', true)
+                
+                // 预加载对应的 logo 图片
+                const link = document.createElement('link')
+                link.rel = 'preload'
+                link.as = 'image'
+                link.href = isDark ? '/logo-dark.svg' : '/logo.svg'
+                document.head.appendChild(link)
+            })()
+        </script>
+    </head>
+    <body class="font-sans text-gray-700 dark:text-gray-200 relative">
+        <div id="app"></div>
+        <script type="module" src="/src/main.ts"></script>
+    </body>
+</html>

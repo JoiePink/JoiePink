@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>vite-fast-template</title>
+        <script>
+            // GitHub Pages SPA 重定向
+            // 将所有 404 请求重定向到 index.html，让 Vue Router 处理路由
+            var path = window.location.pathname;
+            var search = window.location.search;
+            var hash = window.location.hash;
+            window.location.replace('/index.html' + path + search + hash);
+        </script>
+    </head>
+    <body>
+        <p>Redirecting...</p>
+    </body>
+</html>
+
