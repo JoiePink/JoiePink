@@ -86,8 +86,8 @@ const projectsByCate = computed(() => {
 <template>
     <div class="max-w-300 mx-auto">
         <div>
-            <div class="prose m-auto mb-4 text-center font-bold font-size-10">Prod Projects</div>
-            <p class="text-center font-size-5 italic mb-10 op80">Projects that has been running in production.</p>
+            <div class="prose m-auto mb-4 text-center font-bold font-size-10">Projects</div>
+            <p class="text-center font-size-5 italic mb-10 op80">Projects that I designed and developed.</p>
         </div>
         <div class="max-w-300 justify-between">
             <section v-for="cate in cateList" :key="cate" class="mb-10 space-y-4 slide-enter">
@@ -97,8 +97,7 @@ const projectsByCate = computed(() => {
                         v-for="p in projectsByCate.get(cate) || []"
                         :key="p.link"
                         class="flex items-center gap-3 bg-base border border-base rounded-xl px3 py2 shadow-sm hover:(shadow-md translate-y--1) transition duration-200">
-                        <div
-                            class="w10 h10 bg-#fff rounded-full flex justify-center items-center shadow-inner">
+                        <div class="w10 h10 bg-#fff rounded-full flex justify-center items-center shadow-inner">
                             <img :src="p.icon" :alt="p.name" loading="lazy" decoding="async" class="rounded-full" />
                         </div>
                         <div class="flex-1 space-y-1">
