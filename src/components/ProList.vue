@@ -57,17 +57,17 @@ const projectList = ref<ProjectCategory[]>([
         cate: 'WebSite',
         list: [
             {
-                name: 'BoSiXinYu',
+                name: '博思芯宇',
                 icon: '/prod-logos/BoSiXinYu.png',
                 link: 'https://bodesitech.com/',
                 desc: '杭州博思芯宇科技有限公司企业官网',
             },
 
             {
-                name: 'SpringTex',
+                name: 'SpringTex春禾',
                 icon: '/prod-logos/spring.png',
                 link: 'https://www.springtex.com/',
-                desc: '宁波市春禾时装有限公司企业官网',
+                desc: '宁波春禾时装有限公司企业官网',
             },
         ],
     },
