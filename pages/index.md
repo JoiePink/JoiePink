@@ -36,7 +36,8 @@ Find me on
   <a href="https://www.youtube.com/@Joie-e6h" target="_blank"><span op75 i-simple-icons-youtube /> YouTube</a>
 </p>
 
-Or mail me at cassieye20190909@gmail.com
+Or mail me at <br/>
+cassieye20190909@gmail.com
 
 ---
 

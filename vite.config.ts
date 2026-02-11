@@ -45,8 +45,8 @@ export default defineConfig({
       wrapperComponent: id => id.includes('/demo/')
         ? 'WrapperDemo'
         : 'WrapperPost',
-      wrapperClasses: (code) => code.includes('@layout-full-width')
-        ? ''
+      wrapperClasses: (id, code) => code.includes('@layout-full-width')
+        ? 'prose'
         : 'prose m-auto slide-enter-content',
       headEnabled: false,
       exportFrontmatter: false,
