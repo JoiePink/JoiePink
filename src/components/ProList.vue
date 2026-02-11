@@ -83,7 +83,7 @@ const projectsByCate = computed(() => {
     <div class="max-w-300 mx-auto">
         <div>
             <div class="prose m-auto mb-4 text-center font-bold font-size-10">Prod Projects</div>
-            <p class="text-center font-size-5 italic mb-10 op80">Projects that has been running in production.</p>
+            <p class="text-center font-size-5 italic mb-10 op80">Projects that have been running in production.</p>
         </div>
         <div class="max-w-300 justify-between">
             <section v-for="cate in cateList" :key="cate" class="mb-10 space-y-4 slide-enter">
