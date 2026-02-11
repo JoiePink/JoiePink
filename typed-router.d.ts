@@ -30,9 +30,30 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/example': RouteRecordInfo<
-      '/example',
-      '/example',
+    '/blogs': RouteRecordInfo<
+      '/blogs',
+      '/blogs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/demos': RouteRecordInfo<
+      '/demos',
+      '/demos',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/notes': RouteRecordInfo<
+      '/notes',
+      '/notes',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/projects': RouteRecordInfo<
+      '/projects',
+      '/projects',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -56,9 +77,27 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'pages/example.md': {
+    'pages/blogs.vue': {
       routes:
-        | '/example'
+        | '/blogs'
+      views:
+        | never
+    }
+    'pages/demos.vue': {
+      routes:
+        | '/demos'
+      views:
+        | never
+    }
+    'pages/notes.vue': {
+      routes:
+        | '/notes'
+      views:
+        | never
+    }
+    'pages/projects.vue': {
+      routes:
+        | '/projects'
       views:
         | never
     }

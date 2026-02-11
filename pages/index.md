@@ -5,7 +5,7 @@ image: https://antfu.me/og.png
 art: random
 ---
 
-Hey! I'm Joie Pink, a passionate software design and development engineer
+Hey! I'm Joie Pink, a passionate software design and development engineer.
 
 Focusing on {Vue} {WeiXin}<br>
 Creator of {Cassieye Theme} {Coffee}<br>
