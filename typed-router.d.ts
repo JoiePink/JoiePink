@@ -30,6 +30,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/about-tech': RouteRecordInfo<
+      '/about-tech',
+      '/about-tech',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/about-uni': RouteRecordInfo<
+      '/about-uni',
+      '/about-uni',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/blogs': RouteRecordInfo<
       '/blogs',
       '/blogs',
@@ -81,6 +95,18 @@ declare module 'vue-router/auto-routes' {
     'pages/index.md': {
       routes:
         | '/'
+      views:
+        | never
+    }
+    'pages/about-tech.vue': {
+      routes:
+        | '/about-tech'
+      views:
+        | never
+    }
+    'pages/about-uni.vue': {
+      routes:
+        | '/about-uni'
       views:
         | never
     }

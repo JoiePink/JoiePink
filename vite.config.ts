@@ -31,6 +31,27 @@ export default defineConfig({
   server: {
     port: 2019,
     open: true,
+    hmr: {
+      overlay: true,
+    },
+    watch: {
+      // 优化文件监听，忽略 node_modules
+      ignored: ['**/node_modules/**', '**/.git/**', '**/dist/**'],
+      // 使用轮询模式（在某些系统上更可靠，但会消耗更多资源）
+      usePolling: false,
+      // 聚合延迟，减少频繁更新
+      interval: 100,
+    },
+  },
+  optimizeDeps: {
+    // 预构建依赖，加快启动和 HMR 速度
+    include: [
+      'vue',
+      'vue-router',
+      '@vueuse/core',
+    ],
+    // 排除不需要预构建的依赖
+    exclude: [],
   },
   plugins: [
     UnoCSS(),

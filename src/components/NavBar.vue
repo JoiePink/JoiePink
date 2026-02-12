@@ -46,6 +46,10 @@ const { y: scroll } = useWindowScroll()
           <span class="lt-md:hidden">Demos</span>
           <div i-carbon-demo class="md:hidden" />
         </RouterLink>
+        <RouterLink to="/about-tech" title="About">
+          <span class="lt-md:hidden">About</span>
+          <div i-carbon-user-favorite class="md:hidden" />
+        </RouterLink>
         <a href="https://github.com/JoiePink" target="_blank" title="GitHub" class="lt-md:hidden">
           <div i-uil-github-alt />
         </a>
