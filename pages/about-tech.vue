@@ -195,7 +195,11 @@ const techList = ref<TechCategory[]>([
     <div class="max-w-300 mx-auto">
         <div class="flex flex-col gap-4 md:flex-row lg:flex-row md:gap-6 lg:gap-8 mb20">
             <div class="text-2xl font-bold op70">Technology Stack</div>
-            <a class="!border-none opacity-20 hover:opacity-50 cursor-pointer text-2xl font-bold" href="/about-uni">University Experience</a>
+            <RouterLink
+                to="/about-uni"
+                class="!border-none opacity-20 hover:opacity-50 cursor-pointer text-2xl font-bold transition-opacity duration-200">
+                University Experience
+            </RouterLink>
         </div>
 
         <div class="space-y-8">
