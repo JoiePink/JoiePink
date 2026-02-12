@@ -46,7 +46,7 @@ export default defineConfig({
         ? 'WrapperDemo'
         : 'WrapperPost',
       wrapperClasses: (id, code) => code.includes('@layout-full-width')&&id
-        ? 'prose'
+        ? ''
         : 'prose m-auto slide-enter-content',
       headEnabled: false,
       exportFrontmatter: false,

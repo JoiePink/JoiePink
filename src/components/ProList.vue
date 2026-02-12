@@ -92,9 +92,8 @@ const projectsByCate = computed(() => {
                     <div
                         v-for="p in projectsByCate.get(cate) || []"
                         :key="p.link"
-                        class="flex items-center gap-3 bg-base border border-base rounded-xl px3 py2 shadow-sm hover:(shadow-md translate-y--1) transition duration-200">
-                        <div
-                            class="w10 h10 bg-stone-100 dark:bg-zinc-50 rounded-full flex justify-center items-center shadow-inner">
+                        class="flex items-center gap-3 bg-base border border-base dark:border-[#666] rounded-xl px3 py2 shadow-sm hover:(shadow-md translate-y--1) transition duration-200">
+                        <div class="w10 h10 bg-#fff rounded-full flex justify-center items-center shadow-inner">
                             <img :src="p.icon" :alt="p.name" loading="lazy" decoding="async" class="rounded-full" />
                         </div>
                         <div class="flex-1 space-y-1">
