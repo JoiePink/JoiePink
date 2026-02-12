@@ -192,7 +192,7 @@ const techList = ref<TechCategory[]>([
 ])
 </script>
 <template>
-    <div class="max-w-6xl mx-auto px-4">
+    <div class="max-w-300 mx-auto">
         <div class="flex flex-col gap-4 md:flex-row lg:flex-row md:gap-6 lg:gap-8 mb20">
             <div class="text-2xl font-bold op70">Technology Stack</div>
             <a class="!border-none opacity-20 hover:opacity-50 cursor-pointer text-2xl font-bold" href="/about-uni">University Experience</a>
