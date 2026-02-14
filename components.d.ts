@@ -11,8 +11,11 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    CarbonLogoGithub: typeof import('~icons/carbon/logo-github')['default']
     copy: typeof import('./src/components/ProjectList copy.vue')['default']
+    GitHubLink: typeof import('./src/components/GitHubLink.vue')['default']
     Icon: typeof import('~icons/ic/on')['default']
+    ListPosts: typeof import('./src/components/ListPosts.vue')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
     ProjectList: typeof import('./src/components/ProjectList.vue')['default']
     ProList: typeof import('./src/components/ProList.vue')['default']

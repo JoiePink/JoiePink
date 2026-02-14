@@ -44,9 +44,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/blogs': RouteRecordInfo<
+    '/blogs/': RouteRecordInfo<
+      '/blogs/',
       '/blogs',
-      '/blogs',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/blogs/coffee-performance': RouteRecordInfo<
+      '/blogs/coffee-performance',
+      '/blogs/coffee-performance',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/blogs/vite-framework': RouteRecordInfo<
+      '/blogs/vite-framework',
+      '/blogs/vite-framework',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -110,9 +124,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'pages/blogs.vue': {
+    'pages/blogs/index.md': {
       routes:
-        | '/blogs'
+        | '/blogs/'
+      views:
+        | never
+    }
+    'pages/blogs/coffee-performance.md': {
+      routes:
+        | '/blogs/coffee-performance'
+      views:
+        | never
+    }
+    'pages/blogs/vite-framework.md': {
+      routes:
+        | '/blogs/vite-framework'
       views:
         | never
     }

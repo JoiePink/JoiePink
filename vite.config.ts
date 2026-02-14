@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import { resolve } from 'node:path'
 import Vue from '@vitejs/plugin-vue'
+import fs from 'fs-extra'
+import matter from 'gray-matter'
 import VueRouter from 'unplugin-vue-router/vite'
 import Markdown from 'unplugin-vue-markdown/vite'
 import MarkdownItShiki from '@shikijs/markdown-it'
@@ -58,6 +60,18 @@ export default defineConfig({
     VueRouter({
       routesFolder: 'pages',
       extensions: ['.vue', '.md'],
+      extendRoute(route) {
+        const path = route.components.get('default')
+        if (!path)
+          return
+
+        if (path.endsWith('.md')) {
+          const { data } = matter(fs.readFileSync(path, 'utf-8'))
+          route.addToMeta({
+            frontmatter: data,
+          })
+        }
+      },
     }),
     Vue({
       include: [/\.vue$/, /\.md$/],
