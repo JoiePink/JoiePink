@@ -1,1 +1,1 @@
-<a href="joiepink.space">me</a>
+<a href="http://www.joiepink.space/" blank>me</a>
