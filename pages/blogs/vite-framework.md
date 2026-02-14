@@ -1,6 +1,6 @@
 ---
 title: 搭建一个基于vite的快速开发项目结构
-date: 2025-02-08T09:00:00Z
+date: 2025-12-28T09:00:00Z
 lang: zh
 duration: 8min
 ---
