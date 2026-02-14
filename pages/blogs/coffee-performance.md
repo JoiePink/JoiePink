@@ -105,7 +105,7 @@ watch(isDark, () => {
 
 先来说一下[Vue](https://github.com/vuejs/core)中<code important-text-cyan>ref</code>和<code important-text-cyan>shallowRef</code>的区别
 
-<code important-text-cyan>ref</code>: [Vue](https://github.com/vuejs/core)会对你塞进去的整个对象做深度响应式代理——递归的把对象里每一层属性都报称getter/setter(Proxy), 这样任意一层属性变了都会触发更新
+<code important-text-cyan>ref</code>: [Vue](https://github.com/vuejs/core)会对你塞进去的整个对象做深度响应式代理——递归的把对象里每一层属性都变成getter/setter(Proxy), 这样任意一层属性变了都会触发更新
 
 <code important-text-cyan>shallowRef</code>：只对[.value这一层]做响应式。当把一个对象赋值给`shallowRef.value`的时候，[Vue](https://github.com/vuejs/core)不会去递归代理这个对象内部，内部属性变了[Vue](https://github.com/vuejs/core)并不知道，但只有把整个对象换掉(重新赋值.value)时候才会触发更新
 
@@ -115,9 +115,9 @@ watch(isDark, () => {
 
 浏览器在发`postMessage`的时候，会对要传的数据做<code important-text-purple>结构化克隆 structured clone</code>，把对象序列号之后再在另一边反序列化，而Proxy对象不支持被克隆，所以会报错
 
-能被结构化克隆的：普通对象、数组、部分简单类型
+- 能被结构化克隆的：普通对象、数组、部分简单类型
 
-不能被结构化克隆的：函数、DOM节点、Proxy对象(Vue的响应式对象就是Proxy)
+- 不能被结构化克隆的：函数、DOM节点、Proxy对象(Vue的响应式对象就是Proxy)
 
 如果使用<code important-text-cyan>shallowRef</code>存储的话，赋值给`shallowRef.value`的是[Amap](https://lbs.amap.com/)原始的实例对象，[Vue](https://github.com/vuejs/core)不会去递归代理它里面的属性，也就不会报错。而<code important-text-cyan>ref</code>存储会递归遍历、创建大量的`Proxy`，但其实并不需要在地图内部某个坐标变了就触发Vue更新，我们只需要在换地图、换marker、换聚合的这种`整实例替换`的时候更新即可。所以<code important-text-cyan>shallowRef</code>的时候内存和CPU开销都更小，从而最性能有利。
 
@@ -129,7 +129,47 @@ watch(isDark, () => {
 
 具体做法如下：
 
-<img src="../../public/joie-img/coffee-performance-04.png"></img>
+```js
+/** 根据当前视口 bounds 过滤点位，销毁旧聚合并只渲染视野内的点聚合 */
+function updateClusterByViewport(AmapInstance) {
+  if (!map.value || !pointList.value?.length)
+    return
+  const b = map.value.getBounds()
+  if (!b)
+    return
+  const inBounds = pointList.value.filter((point) => {
+    const ll = point.lnglat
+    const lng = Array.isArray(ll) ? ll[0] : ll?.lng ?? ll?.longitude
+    const lat = Array.isArray(ll) ? ll[1] : ll?.lat ?? ll?.latitude
+    return lng != null && lat != null && b.contains(new AmapInstance.LngLat(lng, lat))
+  })
+  pointsInBounds.value = inBounds
+
+  if (clusterRef.value) {
+    clusterRef.value.setMap(null)
+    clusterRef.value = null
+  }
+  if (!inBounds.length)
+    return
+  const myList = inBounds.map(point => ({
+    lnglat: Array.isArray(point.lnglat)
+      ? point.lnglat
+      : [
+          point.lnglat?.lng ?? point.lnglat?.longitude,
+          point.lnglat?.lat ?? point.lnglat?.latitude,
+        ],
+    id: point.id,
+  }))
+  const gridSize = 60
+  const cluster = new AmapInstance.MarkerCluster(map.value, myList, {
+    gridSize,
+    renderClusterMarker: createRenderClusterMarker(AmapInstance, myList.length),
+    renderMarker: createRenderStoreMarker(AmapInstance),
+  })
+  setupClusterClickZoom(cluster)
+  clusterRef.value = cluster
+}
+```
 
 ### 4. **视口变化防抖 + 只绑一次**
 
@@ -171,7 +211,7 @@ map.value.on('complete', () => {
 至此，[Amap](https://lbs.amap.com/)相关的性能优化结束，首屏加载从原先的<code important-text-yellow>8,304ms</code>优化到了<code important-text-green>4,181ms</code>加载时间减少了<code important-text-green>4,123ms</code>,性能提升了约<code important-text-green>49.65%</code>，加载速度快了<code important-text-green>一倍</code>
 
 优化前：
-<img src="../../public/joie-img/coffee-performance-02.webp"></img>
+<img src="../../public/blog-imgs/coffee-performance/2.png"></img>
 
 优化后：
-<img src="../../public/joie-img/coffee-performance-03.png"></img>
+<img src="../../public/blog-imgs/coffee-performance/3.webp"></img>
