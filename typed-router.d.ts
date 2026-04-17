@@ -58,6 +58,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/blogs/ruoyi-vue3': RouteRecordInfo<
+      '/blogs/ruoyi-vue3',
+      '/blogs/ruoyi-vue3',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/blogs/vite-framework': RouteRecordInfo<
       '/blogs/vite-framework',
       '/blogs/vite-framework',
@@ -133,6 +140,12 @@ declare module 'vue-router/auto-routes' {
     'pages/blogs/coffee-performance.md': {
       routes:
         | '/blogs/coffee-performance'
+      views:
+        | never
+    }
+    'pages/blogs/ruoyi-vue3.md': {
+      routes:
+        | '/blogs/ruoyi-vue3'
       views:
         | never
     }
