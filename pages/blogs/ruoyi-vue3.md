@@ -12,7 +12,7 @@ duration: 8min
 # 一、Proxy
 
 ```js
-const { proxy } = getCurrentInstance();
+const { proxy } = getCurrentInstance()
 ```
 
 这里的`proxy`是从`getCurrentInstance()`里拿到的组件实例代理对象，它的主要作用是在`setup`里访问挂在实例上的全局方法/属性(例如 `app.config.globalProperties`里面的东西)
@@ -135,7 +135,7 @@ const token = proxy?.cache?.session.get('token')
 使用
 
 ```js
-proxy?.$download?.oss(ossId);
+proxy?.$download?.oss(ossId)
 ```
 
 - zip(url, name)方法 url业务下载接口路径 name前端保存到本地时候显示的文件名
@@ -183,6 +183,7 @@ const handleDownloadOrderZip = () => {
   proxy?.$download?.zip(url, fileName)
 }
 ```
+
 源码：
 
 ```js
@@ -217,4 +218,509 @@ const handleDownloadOrderZip = () => {
 
 ## 4. proxy.$auth
 
-`auth.ts`是一个前端权限判断工具，作用是同意判断"当前用户有没有某权限/某角色"
+`auth.ts`是一个前端权限判断工具，作用是用来判断"当前用户有没有某权限/某角色"
+
+核心函数源码
+
+```js
+/**
+ * 从useUserStore()里面取 permissions数组， 判断当前用户是否拥有传入的permission
+ * 如果权限列表里包含 *:*:*，视为拥有全部权限(通配)
+ * 否则查看列表中是否有与传入字符串完全一致的权限项
+ */
+const authPermission = (permission: string): boolean => {
+  const all_permission = '*:*:*';
+  const permissions: string[] = useUserStore().permissions;
+  if (permission && permission.length > 0) {
+    return permissions.some((v) => {
+      return all_permission === v || v === permission;
+    });
+  } else {
+    return false;
+  }
+};
+
+/**
+ * 从useUserStore()里面取roles数组，判断当前用户是否拥有传入的role
+ * 如果角色中包含admin, 视为超级管理员(通常等价于拥有所有角色相关判断)
+ * 否则看是否有与传入字符串完全一致的角色
+ */
+const authRole = (role: string): boolean => {
+  const super_admin = 'admin';
+  const roles = useUserStore().roles;
+  if (role && role.length > 0) {
+    return roles.some((v) => {
+      return super_admin === v || v === role;
+    });
+  } else {
+    return false;
+  }
+};
+```
+
+开发时可使用的工具
+
+```js
+export default {
+  // 验证用户是否具备某权限
+  hasPermi(permission: string): boolean {
+    return authPermission(permission);
+  },
+  // 验证用户是否含有指定权限，只需包含其中一个
+  hasPermiOr(permissions: string[]): boolean {
+    return permissions.some((item) => {
+      return authPermission(item);
+    });
+  },
+  // 验证用户是否含有指定权限，必须全部拥有
+  hasPermiAnd(permissions: string[]): boolean {
+    return permissions.every((item) => {
+      return authPermission(item);
+    });
+  },
+  // 验证用户是否具备某角色
+  hasRole(role: string): boolean {
+    return authRole(role);
+  },
+  // 验证用户是否含有指定角色，只需包含其中一个
+  hasRoleOr(roles: string[]): boolean {
+    return roles.some((item) => {
+      return authRole(item);
+    });
+  },
+  // 验证用户是否含有指定角色，必须全部拥有
+  hasRoleAnd(roles: string[]): boolean {
+    return roles.every((item) => {
+      return authRole(item);
+    });
+  }
+};
+```
+
+在后台管理里配合按钮显隐、菜单、路由、接口前的二次校验等：例如「只有拥有 system:user:add 权限才显示新增按钮」，或「只有 admin 或某角色才能进某页面」。
+
+用法：
+
+- 组合式JS
+
+```js
+const { proxy } = getCurrentInstance() as ComponentInternalInstance;
+proxy?.$auth?.hasPermi('system:user:add');
+```
+
+- 在任意的.ts .vue` <script></script>` 里面
+
+```js
+import auth from '@/plugins/auth'
+
+auth.hasPermi('forest:order:shipping') // 单个权限
+auth.hasPermiOr(['a:b:c', 'd:e:f']) // 满足其一即可
+auth.hasPermiAnd(['a:b:c', 'd:e:f']) // 必须全部满足
+
+auth.hasRole('admin') // 单个角色
+auth.hasRoleOr(['admin', 'common']) // 其一
+auth.hasRoleAnd(['role1', 'role2']) // 全部
+```
+
+举例：RuoYi源码
+
+```js
+/**
+ * 根据当前登录用户的权限或角色 从一批【动态路由】里筛选出当前用户能访问的路由 返回一个新数组res
+ * routes 被筛选的数组
+ * auth.hasPermiOr 从用户当前的权限数组里面查
+ * auth.hasRoleOr 从用户当前的角色数组里面查
+ */
+export const filterDynamicRoutes = (routes: RouteRecordRaw[]) => {
+  const res: RouteRecordRaw[] = [];
+  routes.forEach((route) => {
+    if (route.permissions) {
+      if (auth.hasPermiOr(route.permissions)) {
+        res.push(route);
+      }
+    } else if (route.roles) {
+      if (auth.hasRoleOr(route.roles)) {
+        res.push(route);
+      }
+    }
+  });
+  return res;
+};
+```
+
+注意：页面中大量写的`<el-button v-hasPermi="['system:user:add']">新增</el-button>`
+是 src/directive/permission/index.ts 里的指令，逻辑和 auth.ts 类似（都读 useUserStore），但不是调用 auth.ts 里的方法。
+需要「在 JS 里判断布尔值」时用 auth / $auth；需要「无权限就删掉 DOM」时用 v-hasPermi / v-hasRoles。
+
+## 5. svgicon.ts
+
+```js
+// 把 @element-plus/icons-vue 里导出的所有图标组件打成一个对象（名字 → 组件）。
+import * as ElementPlusIconsVue from '@element-plus/icons-vue';
+import { App } from 'vue';
+
+export default {
+  // 插件安装时遍历这个对象，对每个 [名字, 组件] 调用 app.component(key, component)，把图标按 导出时的名字 注册成全局组件。
+  install: (app: App) => {
+    for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+      app.component(key, component);
+    }
+  }
+};
+```
+
+使用：一般不用在 `<script setup>` 里再 `import` 图标，因为已经全局注册了；若用 `<component :is="...">` 动态切换，把字符串名或组件引用对上全局注册名即可
+
+```html
+<template>
+    <el-icon><Edit /></el-icon>
+    <el-icon><Delete /></el-icon>
+</template>
+```
+
+## 5. proxy.useDict
+
+源码解读：
+
+```js
+// query API: 根据字典类型查询字典数据信息
+export function getDicts(dictType: string): AxiosPromise<DictDataVO[]> {
+  return request({
+    url: '/system/dict/data/type/' + dictType,
+    method: 'get'
+  });
+}
+
+import { getDicts } from '@/api/system/dict/data';
+import { useDictStore } from '@/store/modules/dict';
+/**
+ * 获取字典数据 传参 proxy?.useDict('order_status', 'order_shipping_type')
+ */
+export const useDict = (...args: string[]): { [key: string]: DictDataOption[] } => {
+  const res = ref<{
+    [key: string]: DictDataOption[];
+  }>({});
+
+  args.forEach(async (dictType) => {
+    res.value[dictType] = [];
+    // 从dict的pinia里面拿
+    const dicts = useDictStore().getDict(dictType);
+    if (dicts) {
+      res.value[dictType] = dicts;
+    } else {
+      // 请求后端接口拿
+      await getDicts(dictType).then((resp) => {
+        res.value[dictType] = resp.data.map(
+          (p): DictDataOption => ({ label: p.dictLabel, value: p.dictValue, elTagType: p.listClass, elTagClass: p.cssClass })
+        );
+        useDictStore().setDict(dictType, res.value[dictType]);
+      });
+    }
+  });
+  return res.value;
+};
+```
+
+用处：适合 「系统数据字典维护、前后端共用同一套类型编码」 的枚举
+
+举例：
+
+- el-select
+
+```js
+<script setup lang="ts">
+import { getCurrentInstance, reactive, toRefs } from 'vue';
+
+const { proxy } = getCurrentInstance() as any;
+const { order_status } = toRefs<any>(proxy.useDict('order_status'));
+
+const form = reactive({ status: '' });
+</script>
+
+<template>
+  <el-form-item label="订单状态">
+    <el-select v-model="form.status" placeholder="请选择" clearable>
+      <el-option v-for="d in order_status" :key="d.value" :label="d.label" :value="d.value" />
+    </el-select>
+  </el-form-item>
+</template>
+```
+
+- 列表里带样式展示（el-tag + 字典）
+
+```js
+<script setup lang="ts">
+import { getCurrentInstance, toRefs } from 'vue';
+
+const { proxy } = getCurrentInstance() as any;
+const { order_status } = toRefs<any>(proxy.useDict('order_status'));
+</script>
+
+<template>
+  <el-table-column label="状态" prop="status">
+    <template #default="{ row }">
+      <el-tag v-for="d in order_status" v-show="d.value === row.status" :key="d.value" :type="d.elTagType as any">
+        {{ d.label }}
+      </el-tag>
+    </template>
+  </el-table-column>
+</template>
+```
+
+- 分支（按字典值控制按钮是否出现）
+
+```js
+<script setup lang="ts">
+import { getCurrentInstance, toRefs } from 'vue';
+
+const { proxy } = getCurrentInstance() as any;
+const { order_status } = toRefs<any>(proxy.useDict('order_status'));
+
+defineProps<{ rowStatus?: string }>();
+</script>
+
+<template>
+  <!-- 示例：仅当业务上约定某值为「待发货」时显示发货按钮，具体 value 以字典为准 -->
+  <el-button v-if="rowStatus === order_status.find((d) => d.label === '待发货')?.value" type="primary">发货</el-button>
+</template>
+```
+
+## 6. proxy.getConfigKey
+
+根据参数键名请求 GET /system/config/configKey/{configKey}，拿到该参数在系统里配置的值
+
+```js
+import request from '@/utils/request';
+import { ConfigForm, ConfigQuery, ConfigVO } from './types';
+import { AxiosPromise } from 'axios';
+
+// 查询参数列表
+export function listConfig(query: ConfigQuery): AxiosPromise<ConfigVO[]> {
+  return request({
+    url: '/system/config/list',
+    method: 'get',
+    params: query
+  });
+}
+
+// 查询参数详细
+export function getConfig(configId: string | number): AxiosPromise<ConfigVO> {
+  return request({
+    url: '/system/config/' + configId,
+    method: 'get'
+  });
+}
+
+// 根据参数键名查询参数值
+export function getConfigKey(configKey: string): AxiosPromise<string> {
+  return request({
+    url: '/system/config/configKey/' + configKey,
+    method: 'get'
+  });
+}
+
+// 新增参数配置
+export function addConfig(data: ConfigForm) {
+  return request({
+    url: '/system/config',
+    method: 'post',
+    data: data
+  });
+}
+
+// 修改参数配置
+export function updateConfig(data: ConfigForm) {
+  return request({
+    url: '/system/config',
+    method: 'put',
+    data: data
+  });
+}
+
+// 修改参数配置
+export function updateConfigByKey(key: string, value: any) {
+  return request({
+    url: '/system/config/updateByKey',
+    method: 'put',
+    data: {
+      configKey: key,
+      configValue: value
+    }
+  });
+}
+
+// 删除参数配置
+export function delConfig(configId: string | number | Array<string | number>) {
+  return request({
+    url: '/system/config/' + configId,
+    method: 'delete'
+  });
+}
+
+// 刷新参数缓存
+export function refreshCache() {
+  return request({
+    url: '/system/config/refreshCache',
+    method: 'delete'
+  });
+}
+```
+
+用法：
+
+```js
+import { getCurrentInstance } from 'vue';
+
+const { proxy } = getCurrentInstance() as any;
+
+// Promise 写法
+proxy?.getConfigKey('default.address').then((response) => {
+  const value = response.data; // 字符串，例如默认地址
+});
+
+// async/await 写法
+const res = await proxy?.getConfigKey('sys.oss.previewListResource');
+const value = res.data;
+```
+
+## 7. proxy.updateConfigByKey
+
+## 8. proxy.download
+
+通用导出方法
+
+源码：
+
+```js
+// 通用下载方法
+export function download(url: string, params: any, fileName: string) {
+  downloadLoadingInstance = ElLoading.service({ text: '正在下载数据，请稍候', background: 'rgba(0, 0, 0, 0.7)' });
+  // prettier-ignore
+  return service.post(url, params, {
+      // 把 params 转成 application/x-www-form-urlencoded 表单格式（和常见若依导出一致）
+      transformRequest: [
+        (params: any) => {
+          return tansParams(params);
+        }
+      ],
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      // 按二进制接收，便于当文件保存
+      responseType: 'blob'
+    }).then(async (resp: any) => {
+      // 判断这段 blob 是不是「真正的文件」
+      const isLogin = blobValidate(resp);
+      if (isLogin) {
+        const blob = new Blob([resp]);
+        // 用你传入的 fileName 保存
+        FileSaver.saveAs(blob, fileName);
+      } else {
+        // 若实际是 JSON 错误体（例如登录失效、业务码），走 else：读成文本 → JSON.parse → ElMessage.error 提示
+        const blob = new Blob([resp]);
+        const resText = await blob.text();
+        const rspObj = JSON.parse(resText);
+        const errMsg = errorCode[rspObj.code] || rspObj.msg || errorCode['default'];
+        ElMessage.error(errMsg);
+      }
+      downloadLoadingInstance.close();
+    }).catch((r: any) => {
+      console.error(r);
+      ElMessage.error('下载文件出现错误，请联系管理员！');
+      downloadLoadingInstance.close();
+    });
+}
+```
+使用：
+
+```js
+/** 导出按钮操作 */
+const handleExport = () => {
+    let subData = JSON.parse(JSON.stringify(queryParams.value));
+    delete subData.pageNum;
+    delete subData.pageSize;
+    proxy?.download('admin/order/export', {
+        ...subData
+    }, `订单_${new Date().getTime()}.xlsx`)
+}
+```
+
+## proxy.parseTime
+```js
+/**
+ * 日期格式化
+ * @param time 时间戳、日期字符串、日期对象、普通对象、数组
+ * @param pattern 格式化模式 {y}-{m}-{d} {h}:{i}:{s}
+ * @returns 格式化后的日期字符串
+ */
+export function parseTime(time: any, pattern?: string) {
+  if (arguments.length === 0 || !time) {
+    return null;
+  }
+  const format = pattern || '{y}-{m}-{d} {h}:{i}:{s}';
+  let date;
+  // 1 new Date()
+  // 2 new Date('2026-04-19 10:00:00')
+  // 3 null
+  // 4 普通对象 {}
+  // 5 数组 []
+  if (typeof time === 'object') {
+    date = time;
+  } else {
+    // type为string && 整段字符串从头到尾只能有数字 0～9，不能有空格、负号、小数点、字母、横杠等
+    // 1. '1713528000'
+    // 2. '1024'
+    if (typeof time === 'string' && /^[0-9]+$/.test(time)) {
+      // 把纯数字字符串变成 number
+      time = parseInt(time);
+      // "2026-04-19"、"2026-04-19T12:30:00.000Z"
+    } else if (typeof time === 'string') {
+      time = time
+        // 把所有 - 换成 /
+        .replace(new RegExp(/-/gm), '/')
+        // 把 T 换成 空格
+        .replace('T', ' ')
+        // 把小数点后紧跟的恰好 3 位数字  .000Z 去掉
+        .replace(new RegExp(/\.[\d]{3}/gm), '');
+    }
+    // 「10 位时间戳乘 1000」
+    if (typeof time === 'number' && time.toString().length === 10) {
+      time = time * 1000;
+    }
+    date = new Date(time);
+  }
+  const formatObj: { [key: string]: any } = {
+    y: date.getFullYear(), // 年
+    m: date.getMonth() + 1, // 月
+    d: date.getDate(), // 日
+    h: date.getHours(), // 时
+    i: date.getMinutes(), // 分
+    s: date.getSeconds(), // 秒
+    a: date.getDay(), // 周几
+  };
+  // 扫描模板并替换
+  // regex: /{(y|m|d|h|i|s|a)+}/g
+  // (y|m|d|h|i|s|a)+ 表示 y、m、d、h、i、s、a 中的任意一个或多个
+  // g 表示全局匹配
+  // result: string, key: string 表示匹配到的结果和对应的键
+  // 返回值: 替换后的字符串
+  return format.replace(/{(y|m|d|h|i|s|a)+}/g, (result: string, key: string) => {
+    let value = formatObj[key];
+    // Note: getDay() returns 0 on Sunday
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value];
+    }
+    // 在处理 「月、日、时、分、秒」 这类数字：若是 一位数（0～9），就在前面 补一个 '0'，显示成 01～09 这种两位数样式
+    if (result.length > 0 && value < 10) {
+      value = '0' + value;
+    }
+    return value || 0;
+  });
+}
+```
+用法举例：
+```js
+<el-table-column label="创建时间" align="center" prop="createTime" width="180">
+  <template #default="scope">
+    <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
+  </template>
+</el-table-column>
+```
