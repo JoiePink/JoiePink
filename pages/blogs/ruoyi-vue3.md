@@ -897,3 +897,5 @@ const userList = [
 <dict-tag :options="roleOptions" :value="row.roleIds" separator="|" />
 ```
 
+## 2. FileUpload
+
