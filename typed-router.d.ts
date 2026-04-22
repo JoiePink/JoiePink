@@ -72,6 +72,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/blogs/wangrditor-ruoyi': RouteRecordInfo<
+      '/blogs/wangrditor-ruoyi',
+      '/blogs/wangrditor-ruoyi',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/demos': RouteRecordInfo<
       '/demos',
       '/demos',
@@ -152,6 +159,12 @@ declare module 'vue-router/auto-routes' {
     'pages/blogs/vite-framework.md': {
       routes:
         | '/blogs/vite-framework'
+      views:
+        | never
+    }
+    'pages/blogs/wangrditor-ruoyi.md': {
+      routes:
+        | '/blogs/wangrditor-ruoyi'
       views:
         | never
     }
