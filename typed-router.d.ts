@@ -72,9 +72,9 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
-    '/blogs/wangrditor-ruoyi': RouteRecordInfo<
-      '/blogs/wangrditor-ruoyi',
-      '/blogs/wangrditor-ruoyi',
+    '/blogs/wang-editor-ruoyi': RouteRecordInfo<
+      '/blogs/wang-editor-ruoyi',
+      '/blogs/wang-editor-ruoyi',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -162,9 +162,9 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
-    'pages/blogs/wangrditor-ruoyi.md': {
+    'pages/blogs/wang-editor-ruoyi.md': {
       routes:
-        | '/blogs/wangrditor-ruoyi'
+        | '/blogs/wang-editor-ruoyi'
       views:
         | never
     }

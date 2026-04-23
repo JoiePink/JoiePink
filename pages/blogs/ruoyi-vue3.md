@@ -763,18 +763,25 @@ export const reconstructDateRange = (params: any, dateRange: any[], timeBeginNam
     start-placeholder="开始日期"
     end-placeholder="结束日期"
   ></el-date-picker>
-</el-form-item>
+</el-form-item>;
 
-const dateRange = ref<any>(['', '']);
+const dateRange = ref < any > ["", ""];
 
 /** 查询订单信息列表 */
 const getList = async () => {
-    loading.value = true;
-    const res = await listOrder(proxy?.reconstructDateRange(queryParams.value, dateRange.value, 'createTimeBegin', 'createTimeEnd'));
-    orderList.value = res.rows;
-    total.value = res.total;
-    loading.value = false;
-}
+  loading.value = true;
+  const res = await listOrder(
+    proxy?.reconstructDateRange(
+      queryParams.value,
+      dateRange.value,
+      "createTimeBegin",
+      "createTimeEnd",
+    ),
+  );
+  orderList.value = res.rows;
+  total.value = res.total;
+  loading.value = false;
+};
 ```
 
 ## 11. proxy.selectDictLabel
@@ -807,9 +814,11 @@ export const selectDictLabel = (datas: any, value: number | string) => {
 一个常见流程：
 
 ```js
-const { order_status } = toRefs(proxy.useDict('order_status'))
+const { order_status } = toRefs(proxy.useDict("order_status"));
 ```
+
 页面里：
+
 - 可以用 dict-tag/el-tag 显示状态
 - 也可以 selectDictLabel(order_status.value, row.status) 显示纯文本
 
@@ -849,16 +858,20 @@ export const selectDictLabels = (datas: any, value: any, separator: any) => {
 ```
 
 # 二、components
+
 ## 1. DictTag
+
 这是一个通用的字典标签展示组件，作用是把字典值渲染成可读文本/el-tag
 
 入参
+
 - options: 字典选项数组 每项需要有 `value` `label` `elTagType` `elTagClass`
 - value: 当前从后端拿到的值 支持 单值/都好字符串/数组
 - showValue: 遇到未匹配值是否显示原值 默认`true`
 - separator: 多值分隔符 默认,
 
 示例
+
 ```js
 <template>
   <el-table :data="userList">
@@ -888,14 +901,90 @@ const userList = [
 ]
 </script>
 ```
+
 显示效果会是：
+
 - 张三：管理员（红色 tag） + 客服（绿色 tag）
 - 李四：运营（黄色 tag）
 
 如果你角色字段是用 | 分隔，比如 '1|3'，就改成：
+
 ```js
 <dict-tag :options="roleOptions" :value="row.roleIds" separator="|" />
 ```
 
 ## 2. FileUpload
+
+`FileUpload` 是一个面向业务场景的文件上传组件。基于若依框架，将 `ossId` 与文件的上传、回显、删除流程进行统一封装，形成完整的数据闭环。通过该组件，开发者仅需围绕 `ossId` 进行数据交互，无需重复实现文件类型与大小校验、上传状态管理、回显转换及删除同步等通用逻辑，从而显著降低重复开发成本并提升交付效率。
+
+### 2.1 数据流
+
+- 父传子(回显)：`modelValue`
+- 子传父(更新)：`emit('update:modelValue', listToString(fileList))`
+  返回格式:`"5673243,1256372,2346738"`
+
+### 2.2 Props
+
+- `modelValue: [String, Object, Array]`: 绑定值(常常是ossId字符串)
+- `limit`：最大上传数量，默认`5`
+- `fileSize`：单文件大小限制(MB), 默认`5`
+- `fileType`：允许扩展名数组，默认`['doc','xls','ppt','txt','pdf','xlsx']`
+- `isShowTip`：是否显示提示文案,默认`true`
+
+### 2.3 使用方法
+```js
+<file-upload
+  v-model="form.ossIds"
+  :limit="5"
+  :file-size="10"
+  :file-type="['pdf', 'doc', 'docx', 'xlsx']"
+/>
+
+const form = reactive({
+  // 回显时可给 "1,2,3"，组件会自动查详情展示
+  // 上传/删除后也会持续更新这个字段
+  ossIds: ""
+});
+```
+
+## 2. iFrame
+一个内嵌网页容器组件, 把外部页面/系统通过`iframe`嵌到当前后台页面里显示
+
+使用：
+
+- props: `src` 传入需要嵌套的页面地址
+
+## 3. ImagePreview
+统一做图片展示和预览，尤其是兼容若依里面常见得`逗号拼接图片地址`格式
+
+它通常解决3件事
+
+- 回显图片：页面上先展示一张（通常是第一张）缩略图
+- 预览大图：点开后可打开预览，并支持在多张图之间切换
+- 数据兼容：把传入得`src`（如`a.jpg, b.jpg, c.jpg`自）自动拆成预览数组，调用方不用自己处理
+
+典型场景：
+
+- 商品管理：主图+详情图+规格图，一眼看完整素材是否齐全
+- 工单/售后：上传多张问题现场图，客服先看缩略图快速分拣
+- 资质/合同审核：多页扫描件按缩略图展示，便于核对页数和顺序
+- 相册/内容运营：文章配图批量管理，快速删除或替换某一张
+- 物流签收/质检：同一订单多角度照片，缩略图便于横向对比
+- OSS资源库：文件多图浏览，减少反复打开预览弹窗的操作
+
+对后台系统来说，优势主要是：
+- 降低点击成本（提升录入/审核效率）
+- 降低误删误选概率（可见即所得）
+- 更适合“多图并行比对”的业务流程
+
+示例：
+
+```js
+// imageUrl需要是完整图片路径 而不是ossId
+<el-table-column label="商品主图" align="center" prop="imageUrl">
+  <template #default="scope">
+    <image-preview :src="scope.row.imageUrl" :width="50" :height="50" />
+  </template>
+</el-table-column>
+```
 
