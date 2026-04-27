@@ -932,6 +932,7 @@ const userList = [
 - `isShowTip`：是否显示提示文案,默认`true`
 
 ### 2.3 使用方法
+
 ```js
 <file-upload
   v-model="form.ossIds"
@@ -948,6 +949,7 @@ const form = reactive({
 ```
 
 ## 2. iFrame
+
 一个内嵌网页容器组件, 把外部页面/系统通过`iframe`嵌到当前后台页面里显示
 
 使用：
@@ -955,6 +957,7 @@ const form = reactive({
 - props: `src` 传入需要嵌套的页面地址
 
 ## 3. ImagePreview
+
 统一做图片展示和预览，尤其是兼容若依里面常见得`逗号拼接图片地址`格式
 
 它通常解决3件事
@@ -973,6 +976,7 @@ const form = reactive({
 - OSS资源库：文件多图浏览，减少反复打开预览弹窗的操作
 
 对后台系统来说，优势主要是：
+
 - 降低点击成本（提升录入/审核效率）
 - 降低误删误选概率（可见即所得）
 - 更适合“多图并行比对”的业务流程
@@ -988,3 +992,187 @@ const form = reactive({
 </el-table-column>
 ```
 
+## 4. Pagination
+
+对`ElementPlus`分页器的业务封装层，作用是把分页交互统一成项目里的固定用法。
+
+使用
+
+```js
+<pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+ v-model:limit="queryParams.pageSize" @pagination="getList" />
+
+const getList = async () => {
+    loading.value = true;
+    const res = await listProduct(queryParams.value);
+    productList.value = res.rows;
+    total.value = res.total;
+    loading.value = false;
+}
+```
+
+`queryParams`是列表接口的查询参数，使用者在父组件只需要向子组件传入`pageNum`和`pageSize`，
+并且操作子组件抛出的 `emit('pagination', { page: currentPage.value, limit: val })`就好了，非常好得实现了分页解耦
+
+## 5. RightToolBar
+
+列表页右上角操作区”的统一封装
+
+使用
+
+```js
+<right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+```
+
+- 显示/隐藏搜索区
+
+点击放大镜按钮触发 update:showSearch
+
+父页面用 v-model:showSearch 接收，控制搜索表单显隐
+刷新列表
+
+- 点击刷新按钮触发 queryTable
+
+父页面监听后重新请求列表数据
+
+- 显示/隐藏表格列
+
+传入 columns 后显示“菜单”按钮
+
+弹出 el-tree 勾选框
+
+勾选变化时把 item.visible 改为 true/false，父页面据此控制列显隐
+
+onMounted 会按初始 visible 回填勾选状态
+
+## 5. SizeSelect
+
+一个全局 UI 尺寸切换器
+
+源码：
+
+```js
+<template>
+  <div>
+    <el-dropdown trigger="click" @command="handleSetSize">
+      <div class="size-icon--style">
+        <svg-icon class-name="size-icon" icon-class="size" />
+      </div>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item v-for="item of sizeOptions" :key="item.value" :disabled="size === item.value" :command="item.value">
+            {{ item.label }}
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+  </div>
+</template>
+
+<script setup lang="ts">
+import useAppStore from "@/store/modules/app";
+
+const appStore = useAppStore();
+const size = computed(() => appStore.size);
+
+const sizeOptions = ref([
+    { label: "较大", value: "large" },
+    { label: "默认", value: "default" },
+    { label: "稍小", value: "small" },
+]);
+
+const handleSetSize = (size: string) => {
+    appStore.setSize(size);
+}
+</script>
+```
+
+app.vue
+
+```js
+<template>
+  <el-config-provider :locale="appStore.locale" :size="size">
+    <router-view />
+  </el-config-provider>
+</template>
+
+<script setup lang="ts">
+import useSettingsStore from '@/store/modules/settings'
+import { handleThemeStyle } from '@/utils/theme'
+import useAppStore from '@/store/modules/app';
+
+const appStore = useAppStore();
+const size = computed(() => appStore.size as any);
+
+onMounted(() => {
+  nextTick(() => {
+    // 初始化主题样式
+    handleThemeStyle(useSettingsStore().theme)
+  })
+})
+</script>
+
+```
+
+RuoYi 在根组件用了 `ElementPlus` 的全局配置容器 `el-config-provider`，把 `size` 绑定到了全局状态。
+
+- 会被覆盖：如果某个组件自己写了 size="large"，它优先用自己的，不跟全局变。
+- 会持久化：app.ts 里 size 用了 useStorage，刷新页面后仍保留上次选择。
+
+## 6. SvgIcon
+
+一个快速显示@/assets/icons/svg下面得svg图标 支持填充颜色、修改样式等
+
+使用 `vite-plugin-svg-icons` Plugin
+
+源码：
+
+```js
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+export default (path: any, isBuild: boolean) => {
+  return createSvgIconsPlugin({
+    // 指定需要缓存的图标文件夹
+    iconDirs: [path.resolve(path.resolve(__dirname, '../../src'), 'assets/icons/svg')],
+    // 指定symbolId格式
+    symbolId: 'icon-[dir]-[name]',
+    svgoOptions: isBuild
+  });
+};
+```
+
+```js
+<template>
+  <svg :class="svgClass" aria-hidden="true">
+    <use :xlink:href="iconName" :fill="color" />
+  </svg>
+</template>
+
+<script setup lang="ts">
+import { propTypes } from '@/utils/propTypes';
+
+const props = defineProps({
+    iconClass: propTypes.string.isRequired,
+    className: propTypes.string.def(''),
+    color: propTypes.string.def(''),
+})
+const iconName =  computed(() => `#icon-${props.iconClass}`);
+const svgClass = computed(() => {
+    if (props.className) {
+        return `svg-icon ${props.className}`
+    }
+    return 'svg-icon'
+})
+</script>
+```
+
+使用：
+
+```js
+<svg-icon icon-class="qq" class-name="qq" color="blue" />
+
+<style scoped>
+.qq {
+  border: 1px solid red;
+}
+</style>
+```
