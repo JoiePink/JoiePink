@@ -20,3 +20,11 @@ duration: 8min
 ## 三、第三层 基础设施
 
 <AiModelInfrastructureLayerSection />
+
+## 四、第四层 模型层
+
+<AiModelModelLayerSection />
+
+## 五、第五层 应用层
+
+<AiModelApplicationLayerSection />
