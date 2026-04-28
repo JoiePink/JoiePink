@@ -13,6 +13,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AiModelChipLayerSection: typeof import('./src/components/AIModel/AiModelChipLayerSection.vue')['default']
     AiModelEnergySection: typeof import('./src/components/AIModel/AiModelEnergySection.vue')['default']
+    AiModelInfrastructureLayerSection: typeof import('./src/components/AIModel/AiModelInfrastructureLayerSection.vue')['default']
     CarbonLogoGithub: typeof import('~icons/carbon/logo-github')['default']
     GitHubLink: typeof import('./src/components/GitHubLink.vue')['default']
     ListPosts: typeof import('./src/components/ListPosts.vue')['default']

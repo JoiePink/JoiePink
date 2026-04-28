@@ -16,3 +16,7 @@ duration: 8min
 ## 二、第二层 芯片
 
 <AiModelChipLayerSection />
+
+## 三、第三层 基础设施
+
+<AiModelInfrastructureLayerSection />
