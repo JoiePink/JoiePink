@@ -1,8 +1,8 @@
 ---
 title: RuoYi-Plus-Vue3前端实践
-date: 2026-04-17T09:00:00Z
+date: "2026-04-17T09:00:00Z"
 lang: zh
-duration: 8min
+duration: 30min
 ---
 
 [[toc]]
@@ -12,7 +12,7 @@ duration: 8min
 # 一、Proxy
 
 ```js
-const { proxy } = getCurrentInstance()
+const { proxy } = getCurrentInstance();
 ```
 
 这里的`proxy`是从`getCurrentInstance()`里拿到的组件实例代理对象，它的主要作用是在`setup`里访问挂在实例上的全局方法/属性(例如 `app.config.globalProperties`里面的东西)
@@ -135,7 +135,7 @@ const token = proxy?.cache?.session.get('token')
 使用
 
 ```js
-proxy?.$download?.oss(ossId)
+proxy?.$download?.oss(ossId);
 ```
 
 - zip(url, name)方法 url业务下载接口路径 name前端保存到本地时候显示的文件名
@@ -311,15 +311,15 @@ proxy?.$auth?.hasPermi('system:user:add');
 - 在任意的.ts .vue` <script></script>` 里面
 
 ```js
-import auth from '@/plugins/auth'
+import auth from "@/plugins/auth";
 
-auth.hasPermi('forest:order:shipping') // 单个权限
-auth.hasPermiOr(['a:b:c', 'd:e:f']) // 满足其一即可
-auth.hasPermiAnd(['a:b:c', 'd:e:f']) // 必须全部满足
+auth.hasPermi("forest:order:shipping"); // 单个权限
+auth.hasPermiOr(["a:b:c", "d:e:f"]); // 满足其一即可
+auth.hasPermiAnd(["a:b:c", "d:e:f"]); // 必须全部满足
 
-auth.hasRole('admin') // 单个角色
-auth.hasRoleOr(['admin', 'common']) // 其一
-auth.hasRoleAnd(['role1', 'role2']) // 全部
+auth.hasRole("admin"); // 单个角色
+auth.hasRoleOr(["admin", "common"]); // 其一
+auth.hasRoleAnd(["role1", "role2"]); // 全部
 ```
 
 举例：RuoYi源码
@@ -373,8 +373,8 @@ export default {
 
 ```html
 <template>
-    <el-icon><Edit /></el-icon>
-    <el-icon><Delete /></el-icon>
+  <el-icon><Edit /></el-icon>
+  <el-icon><Delete /></el-icon>
 </template>
 ```
 
@@ -629,21 +629,27 @@ export function download(url: string, params: any, fileName: string) {
     });
 }
 ```
+
 使用：
 
 ```js
 /** 导出按钮操作 */
 const handleExport = () => {
-    let subData = JSON.parse(JSON.stringify(queryParams.value));
-    delete subData.pageNum;
-    delete subData.pageSize;
-    proxy?.download('admin/order/export', {
-        ...subData
-    }, `订单_${new Date().getTime()}.xlsx`)
-}
+  let subData = JSON.parse(JSON.stringify(queryParams.value));
+  delete subData.pageNum;
+  delete subData.pageSize;
+  proxy?.download(
+    "admin/order/export",
+    {
+      ...subData,
+    },
+    `订单_${new Date().getTime()}.xlsx`,
+  );
+};
 ```
 
-## proxy.parseTime
+## 9. proxy.parseTime
+
 ```js
 /**
  * 日期格式化
@@ -716,11 +722,457 @@ export function parseTime(time: any, pattern?: string) {
   });
 }
 ```
+
 用法举例：
+
 ```js
 <el-table-column label="创建时间" align="center" prop="createTime" width="180">
   <template #default="scope">
     <span>{{ proxy.parseTime(scope.row.createTime) }}</span>
   </template>
 </el-table-column>
+```
+
+## 10. proxy.reconstructDateRange
+
+快速给查询参数加上时间范围查询
+
+源码：
+
+```js
+export const reconstructDateRange = (params: any, dateRange: any[], timeBeginName?: string, timeEndName?: string) => {
+    const search = params;
+    search.params = typeof search.params === 'object' && search.params !== null && !Array.isArray(search.params) ? search.params : {};
+    dateRange = Array.isArray(dateRange) ? dateRange : [];
+    search[timeBeginName] = dateRange[0];
+    search[timeEndName] = dateRange[1];
+    return search;
+};
+```
+
+示例：
+
+```js
+<el-form-item label="创建时间">
+  <el-date-picker
+    class="serarchInput"
+    v-model="dateRange"
+    value-format="YYYY-MM-DD HH:mm:ss"
+    type="daterange"
+    range-separator="-"
+    start-placeholder="开始日期"
+    end-placeholder="结束日期"
+  ></el-date-picker>
+</el-form-item>;
+
+const dateRange = ref < any > ["", ""];
+
+/** 查询订单信息列表 */
+const getList = async () => {
+  loading.value = true;
+  const res = await listOrder(
+    proxy?.reconstructDateRange(
+      queryParams.value,
+      dateRange.value,
+      "createTimeBegin",
+      "createTimeEnd",
+    ),
+  );
+  orderList.value = res.rows;
+  total.value = res.total;
+  loading.value = false;
+};
+```
+
+## 11. proxy.selectDictLabel
+
+根据字典值value找出对应的显示文本label, 用于页面回显
+
+例如后端拿回的order_status为1 字典映射过去表示 已支付
+
+此时就可以用selectDictLabel把1转成 已支付
+
+```js
+export const selectDictLabel = (datas: any, value: number | string) => {
+    if (value === undefined) {
+        return '';
+    }
+    const actions: Array<string | number> = [];
+    Object.keys(datas).some((key) => {
+        if (datas[key].value == '' + value) {
+            actions.push(datas[key].label);
+            return true;
+        }
+    });
+    if (actions.length === 0) {
+        actions.push(value);
+    }
+    return actions.join('');
+};
+```
+
+一个常见流程：
+
+```js
+const { order_status } = toRefs(proxy.useDict("order_status"));
+```
+
+页面里：
+
+- 可以用 dict-tag/el-tag 显示状态
+- 也可以 selectDictLabel(order_status.value, row.status) 显示纯文本
+
+## 12. proxy.selectDictLabels
+
+```js
+/** 把“多个字典值”转换成“多个字典文本”，并按分隔符拼接返回 */
+/** 举例：一个字段保存了 "1,2,3"，页面要显示 "标签A,标签B,标签C" */
+export const selectDictLabels = (datas: any, value: any, separator: any) => {
+    // 如果value是undefined或者空数组 就返回''
+    if (value === undefined || value.length === 0) {
+        return '';
+    }
+    // 如果value是数组 就转换为字符串 [1,2,3] -> 1,2,3
+    if (Array.isArray(value)) {
+        value = value.join(',');
+    }
+    const actions: any[] = [];
+    const currentSeparator = undefined === separator ? ',' : separator;
+    // 按分隔符分割value
+    const temp = value.split(currentSeparator);
+    Object.keys(value.split(currentSeparator)).some((val) => {
+        let match = false;
+        Object.keys(datas).some((key) => {
+            if (datas[key].value == '' + temp[val]) {
+                actions.push(datas[key].label + currentSeparator);
+                match = true;
+            }
+        });
+        if (!match) {
+            actions.push(temp[val] + currentSeparator);
+        }
+    });
+    // 最后去掉末尾多余分隔符并返回
+    return actions.join('').substring(0, actions.join('').length - 1);
+};
+```
+
+# 二、components
+
+## 1. DictTag
+
+这是一个通用的字典标签展示组件，作用是把字典值渲染成可读文本/el-tag
+
+入参
+
+- options: 字典选项数组 每项需要有 `value` `label` `elTagType` `elTagClass`
+- value: 当前从后端拿到的值 支持 单值/都好字符串/数组
+- showValue: 遇到未匹配值是否显示原值 默认`true`
+- separator: 多值分隔符 默认,
+
+示例
+
+```js
+<template>
+  <el-table :data="userList">
+    <el-table-column label="用户名" prop="userName" />
+    <el-table-column label="角色">
+      <template #default="{ row }">
+        <dict-tag
+          :options="roleOptions"
+          :value="row.roleIds"
+          separator=","
+        />
+      </template>
+    </el-table-column>
+  </el-table>
+</template>
+
+<script setup lang="ts">
+const roleOptions = [
+  { value: '1', label: '管理员', elTagType: 'danger', elTagClass: '' },
+  { value: '2', label: '运营', elTagType: 'warning', elTagClass: '' },
+  { value: '3', label: '客服', elTagType: 'success', elTagClass: '' }
+]
+
+const userList = [
+  { userName: '张三', roleIds: '1,3' },
+  { userName: '李四', roleIds: [2] }
+]
+</script>
+```
+
+显示效果会是：
+
+- 张三：管理员（红色 tag） + 客服（绿色 tag）
+- 李四：运营（黄色 tag）
+
+如果你角色字段是用 | 分隔，比如 '1|3'，就改成：
+
+```js
+<dict-tag :options="roleOptions" :value="row.roleIds" separator="|" />
+```
+
+## 2. FileUpload
+
+`FileUpload` 是一个面向业务场景的文件上传组件。基于若依框架，将 `ossId` 与文件的上传、回显、删除流程进行统一封装，形成完整的数据闭环。通过该组件，开发者仅需围绕 `ossId` 进行数据交互，无需重复实现文件类型与大小校验、上传状态管理、回显转换及删除同步等通用逻辑，从而显著降低重复开发成本并提升交付效率。
+
+### 2.1 数据流
+
+- 父传子(回显)：`modelValue`
+- 子传父(更新)：`emit('update:modelValue', listToString(fileList))`
+  返回格式:`"5673243,1256372,2346738"`
+
+### 2.2 Props
+
+- `modelValue: [String, Object, Array]`: 绑定值(常常是ossId字符串)
+- `limit`：最大上传数量，默认`5`
+- `fileSize`：单文件大小限制(MB), 默认`5`
+- `fileType`：允许扩展名数组，默认`['doc','xls','ppt','txt','pdf','xlsx']`
+- `isShowTip`：是否显示提示文案,默认`true`
+
+### 2.3 使用方法
+
+```js
+<file-upload
+  v-model="form.ossIds"
+  :limit="5"
+  :file-size="10"
+  :file-type="['pdf', 'doc', 'docx', 'xlsx']"
+/>
+
+const form = reactive({
+  // 回显时可给 "1,2,3"，组件会自动查详情展示
+  // 上传/删除后也会持续更新这个字段
+  ossIds: ""
+});
+```
+
+## 2. iFrame
+
+一个内嵌网页容器组件, 把外部页面/系统通过`iframe`嵌到当前后台页面里显示
+
+使用：
+
+- props: `src` 传入需要嵌套的页面地址
+
+## 3. ImagePreview
+
+统一做图片展示和预览，尤其是兼容若依里面常见得`逗号拼接图片地址`格式
+
+它通常解决3件事
+
+- 回显图片：页面上先展示一张（通常是第一张）缩略图
+- 预览大图：点开后可打开预览，并支持在多张图之间切换
+- 数据兼容：把传入得`src`（如`a.jpg, b.jpg, c.jpg`自）自动拆成预览数组，调用方不用自己处理
+
+典型场景：
+
+- 商品管理：主图+详情图+规格图，一眼看完整素材是否齐全
+- 工单/售后：上传多张问题现场图，客服先看缩略图快速分拣
+- 资质/合同审核：多页扫描件按缩略图展示，便于核对页数和顺序
+- 相册/内容运营：文章配图批量管理，快速删除或替换某一张
+- 物流签收/质检：同一订单多角度照片，缩略图便于横向对比
+- OSS资源库：文件多图浏览，减少反复打开预览弹窗的操作
+
+对后台系统来说，优势主要是：
+
+- 降低点击成本（提升录入/审核效率）
+- 降低误删误选概率（可见即所得）
+- 更适合“多图并行比对”的业务流程
+
+示例：
+
+```js
+// imageUrl需要是完整图片路径 而不是ossId
+<el-table-column label="商品主图" align="center" prop="imageUrl">
+  <template #default="scope">
+    <image-preview :src="scope.row.imageUrl" :width="50" :height="50" />
+  </template>
+</el-table-column>
+```
+
+## 4. Pagination
+
+对`ElementPlus`分页器的业务封装层，作用是把分页交互统一成项目里的固定用法。
+
+使用
+
+```js
+<pagination v-show="total > 0" :total="total" v-model:page="queryParams.pageNum"
+ v-model:limit="queryParams.pageSize" @pagination="getList" />
+
+const getList = async () => {
+    loading.value = true;
+    const res = await listProduct(queryParams.value);
+    productList.value = res.rows;
+    total.value = res.total;
+    loading.value = false;
+}
+```
+
+`queryParams`是列表接口的查询参数，使用者在父组件只需要向子组件传入`pageNum`和`pageSize`，
+并且操作子组件抛出的 `emit('pagination', { page: currentPage.value, limit: val })`就好了，非常好得实现了分页解耦
+
+## 5. RightToolBar
+
+列表页右上角操作区”的统一封装
+
+使用
+
+```js
+<right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
+```
+
+- 显示/隐藏搜索区
+
+点击放大镜按钮触发 update:showSearch
+
+父页面用 v-model:showSearch 接收，控制搜索表单显隐
+刷新列表
+
+- 点击刷新按钮触发 queryTable
+
+父页面监听后重新请求列表数据
+
+- 显示/隐藏表格列
+
+传入 columns 后显示“菜单”按钮
+
+弹出 el-tree 勾选框
+
+勾选变化时把 item.visible 改为 true/false，父页面据此控制列显隐
+
+onMounted 会按初始 visible 回填勾选状态
+
+## 5. SizeSelect
+
+一个全局 UI 尺寸切换器
+
+源码：
+
+```js
+<template>
+  <div>
+    <el-dropdown trigger="click" @command="handleSetSize">
+      <div class="size-icon--style">
+        <svg-icon class-name="size-icon" icon-class="size" />
+      </div>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item v-for="item of sizeOptions" :key="item.value" :disabled="size === item.value" :command="item.value">
+            {{ item.label }}
+          </el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
+  </div>
+</template>
+
+<script setup lang="ts">
+import useAppStore from "@/store/modules/app";
+
+const appStore = useAppStore();
+const size = computed(() => appStore.size);
+
+const sizeOptions = ref([
+    { label: "较大", value: "large" },
+    { label: "默认", value: "default" },
+    { label: "稍小", value: "small" },
+]);
+
+const handleSetSize = (size: string) => {
+    appStore.setSize(size);
+}
+</script>
+```
+
+app.vue
+
+```js
+<template>
+  <el-config-provider :locale="appStore.locale" :size="size">
+    <router-view />
+  </el-config-provider>
+</template>
+
+<script setup lang="ts">
+import useSettingsStore from '@/store/modules/settings'
+import { handleThemeStyle } from '@/utils/theme'
+import useAppStore from '@/store/modules/app';
+
+const appStore = useAppStore();
+const size = computed(() => appStore.size as any);
+
+onMounted(() => {
+  nextTick(() => {
+    // 初始化主题样式
+    handleThemeStyle(useSettingsStore().theme)
+  })
+})
+</script>
+
+```
+
+RuoYi 在根组件用了 `ElementPlus` 的全局配置容器 `el-config-provider`，把 `size` 绑定到了全局状态。
+
+- 会被覆盖：如果某个组件自己写了 size="large"，它优先用自己的，不跟全局变。
+- 会持久化：app.ts 里 size 用了 useStorage，刷新页面后仍保留上次选择。
+
+## 6. SvgIcon
+
+一个快速显示@/assets/icons/svg下面得svg图标 支持填充颜色、修改样式等
+
+使用 `vite-plugin-svg-icons` Plugin
+
+源码：
+
+```js
+import { createSvgIconsPlugin } from 'vite-plugin-svg-icons';
+export default (path: any, isBuild: boolean) => {
+  return createSvgIconsPlugin({
+    // 指定需要缓存的图标文件夹
+    iconDirs: [path.resolve(path.resolve(__dirname, '../../src'), 'assets/icons/svg')],
+    // 指定symbolId格式
+    symbolId: 'icon-[dir]-[name]',
+    svgoOptions: isBuild
+  });
+};
+```
+
+```js
+<template>
+  <svg :class="svgClass" aria-hidden="true">
+    <use :xlink:href="iconName" :fill="color" />
+  </svg>
+</template>
+
+<script setup lang="ts">
+import { propTypes } from '@/utils/propTypes';
+
+const props = defineProps({
+    iconClass: propTypes.string.isRequired,
+    className: propTypes.string.def(''),
+    color: propTypes.string.def(''),
+})
+const iconName =  computed(() => `#icon-${props.iconClass}`);
+const svgClass = computed(() => {
+    if (props.className) {
+        return `svg-icon ${props.className}`
+    }
+    return 'svg-icon'
+})
+</script>
+```
+
+使用：
+
+```js
+<svg-icon icon-class="qq" class-name="qq" color="blue" />
+
+<style scoped>
+.qq {
+  border: 1px solid red;
+}
+</style>
 ```

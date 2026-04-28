@@ -51,6 +51,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/blogs/ai-model': RouteRecordInfo<
+      '/blogs/ai-model',
+      '/blogs/ai-model',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/blogs/coffee-performance': RouteRecordInfo<
       '/blogs/coffee-performance',
       '/blogs/coffee-performance',
@@ -68,6 +75,20 @@ declare module 'vue-router/auto-routes' {
     '/blogs/vite-framework': RouteRecordInfo<
       '/blogs/vite-framework',
       '/blogs/vite-framework',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/blogs/wang-editor-ruoyi': RouteRecordInfo<
+      '/blogs/wang-editor-ruoyi',
+      '/blogs/wang-editor-ruoyi',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/blogs/weapp-dev': RouteRecordInfo<
+      '/blogs/weapp-dev',
+      '/blogs/weapp-dev',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -137,6 +158,12 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'pages/blogs/ai-model.md': {
+      routes:
+        | '/blogs/ai-model'
+      views:
+        | never
+    }
     'pages/blogs/coffee-performance.md': {
       routes:
         | '/blogs/coffee-performance'
@@ -152,6 +179,18 @@ declare module 'vue-router/auto-routes' {
     'pages/blogs/vite-framework.md': {
       routes:
         | '/blogs/vite-framework'
+      views:
+        | never
+    }
+    'pages/blogs/wang-editor-ruoyi.md': {
+      routes:
+        | '/blogs/wang-editor-ruoyi'
+      views:
+        | never
+    }
+    'pages/blogs/weapp-dev.md': {
+      routes:
+        | '/blogs/weapp-dev'
       views:
         | never
     }
