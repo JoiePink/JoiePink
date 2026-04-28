@@ -2,7 +2,7 @@
 title: RuoYi-Plus-Vue3前端实践
 date: "2026-04-17T09:00:00Z"
 lang: zh
-duration: 8min
+duration: 30min
 ---
 
 [[toc]]
