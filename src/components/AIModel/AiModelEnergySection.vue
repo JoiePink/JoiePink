@@ -14,7 +14,7 @@
           电力持续供应
         </div>
         <div class="text-neutral-400">↓</div>
-        <div class="grid w-full gap-3 md:grid-cols-4">
+        <div class="hidden w-full gap-3 md:grid md:grid-cols-4">
           <div class="rounded-xl bg-blue-50 px-4 py-3 text-center text-sm font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
             服务器通电
           </div>
@@ -28,15 +28,27 @@
             机房散热和制冷
           </div>
         </div>
+        <div class="flex w-full flex-col items-center gap-2 md:hidden">
+          <div class="rounded-xl bg-blue-50 px-4 py-3 text-center text-sm font-medium text-blue-700 dark:bg-blue-500/15 dark:text-blue-300">
+            服务器通电
+          </div>
+          <span class="text-neutral-400">↓</span>
+          <div class="rounded-xl bg-violet-50 px-4 py-3 text-center text-sm font-medium text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
+            GPU / AI 芯片运行
+          </div>
+          <span class="text-neutral-400">↓</span>
+          <div class="rounded-xl bg-emerald-50 px-4 py-3 text-center text-sm font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+            内存和网络交换数据
+          </div>
+          <span class="text-neutral-400">↓</span>
+          <div class="rounded-xl bg-rose-50 px-4 py-3 text-center text-sm font-medium text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+            机房散热和制冷
+          </div>
+        </div>
         <div class="hidden w-full items-center justify-between px-4 text-neutral-400 md:flex">
           <span>→</span>
           <span>→</span>
           <span>→</span>
-        </div>
-        <div class="flex flex-col items-center gap-2 text-neutral-400 md:hidden">
-          <span>↓</span>
-          <span>↓</span>
-          <span>↓</span>
         </div>
       </div>
     </div>
