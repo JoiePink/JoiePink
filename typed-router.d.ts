@@ -128,9 +128,23 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/test': RouteRecordInfo<
+      '/test',
+      '/test',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/translations/': RouteRecordInfo<
       '/translations/',
       '/translations',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/translations/figma-mcp': RouteRecordInfo<
+      '/translations/figma-mcp',
+      '/translations/figma-mcp',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -252,9 +266,21 @@ declare module 'vue-router/auto-routes' {
       views:
         | never
     }
+    'pages/test.vue': {
+      routes:
+        | '/test'
+      views:
+        | never
+    }
     'pages/translations/index.md': {
       routes:
         | '/translations/'
+      views:
+        | never
+    }
+    'pages/translations/figma-mcp.md': {
+      routes:
+        | '/translations/figma-mcp'
       views:
         | never
     }
