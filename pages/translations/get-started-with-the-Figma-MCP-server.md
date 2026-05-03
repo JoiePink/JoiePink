@@ -1,6 +1,6 @@
 ---
 title: Get started with the Figma MCP server
-date: '2026-05-02T08:00:00Z'
+date: '2026-05-01T08:00:00Z'
 lang: zh
 duration: 8min
 ---

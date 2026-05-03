@@ -7,8 +7,6 @@ duration: 5min
 
 [[toc]]
 
-# Guide to the Figma MCP server
-
 ## Who can use this feature
 
 - 远程服务对于所有席位和方案都是可用的
