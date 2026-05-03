@@ -128,6 +128,27 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/translations/': RouteRecordInfo<
+      '/translations/',
+      '/translations',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/translations/get-started-with-the-Figma-MCP-server': RouteRecordInfo<
+      '/translations/get-started-with-the-Figma-MCP-server',
+      '/translations/get-started-with-the-Figma-MCP-server',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/translations/guide-to-the-Figma-MCP-server': RouteRecordInfo<
+      '/translations/guide-to-the-Figma-MCP-server',
+      '/translations/guide-to-the-Figma-MCP-server',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -228,6 +249,24 @@ declare module 'vue-router/auto-routes' {
     'pages/projects.md': {
       routes:
         | '/projects'
+      views:
+        | never
+    }
+    'pages/translations/index.md': {
+      routes:
+        | '/translations/'
+      views:
+        | never
+    }
+    'pages/translations/get-started-with-the-Figma-MCP-server.md': {
+      routes:
+        | '/translations/get-started-with-the-Figma-MCP-server'
+      views:
+        | never
+    }
+    'pages/translations/guide-to-the-Figma-MCP-server.md': {
+      routes:
+        | '/translations/guide-to-the-Figma-MCP-server'
       views:
         | never
     }

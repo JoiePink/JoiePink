@@ -19,6 +19,7 @@ declare module 'vue' {
     CarbonLogoGithub: typeof import('~icons/carbon/logo-github')['default']
     GitHubLink: typeof import('./src/components/GitHubLink.vue')['default']
     ListPosts: typeof import('./src/components/ListPosts.vue')['default']
+    ListTranslations: typeof import('./src/components/ListTranslations.vue')['default']
     NavBar: typeof import('./src/components/NavBar.vue')['default']
     ProjectList: typeof import('./src/components/ProjectList.vue')['default']
     ProList: typeof import('./src/components/ProList.vue')['default']

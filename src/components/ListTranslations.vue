@@ -10,19 +10,13 @@ const props = withDefaults(
     },
 )
 
-type Post = {
+type TranslationItem = {
     path: string
     title: string
     date: string
     lang?: string
     duration?: string
     redirect?: string
-    inperson?: boolean
-    recording?: boolean
-    video?: boolean
-    radio?: boolean
-    platform?: string
-    place?: string
 }
 
 type Frontmatter = {
@@ -31,22 +25,15 @@ type Frontmatter = {
     title?: string
     redirect?: string
     lang?: string
-    inperson?: boolean
-    recording?: boolean
-    video?: boolean
-    radio?: boolean
-    platform?: string
-    place?: string
 }
+
 const getYear = (a: Date | string | number) => {
     const year = new Date(a).getFullYear()
-    // const year = date.getFullYear()
-    // 如果日期无效，返回 NaN
-    // return isNaN(date.getTime()) ? NaN : year
     return year || NaN
 }
+
 const router = useRouter()
-const base = '/blogs/'
+const base = '/translations/'
 
 const routeList = computed(() => {
     return router
@@ -55,7 +42,7 @@ const routeList = computed(() => {
             const frontmatter = route.meta.frontmatter as Frontmatter | undefined
             if (!route.path.startsWith(base) || route.path.length <= base.length)
                 return false
-            return !!(frontmatter?.date && frontmatter?.duration && frontmatter?.title)
+            return !!(frontmatter?.date && frontmatter?.title)
         })
         .map((i) => {
             const frontmatter = i.meta.frontmatter as Frontmatter
@@ -65,15 +52,9 @@ const routeList = computed(() => {
                 title: frontmatter.title!,
                 date: frontmatter.date!,
                 lang: frontmatter.lang,
-                duration: frontmatter.duration!,
+                duration: frontmatter.duration,
                 redirect: frontmatter.redirect,
-                inperson: frontmatter.inperson,
-                recording: frontmatter.recording,
-                video: frontmatter.video,
-                radio: frontmatter.radio,
-                platform: frontmatter.platform,
-                place: frontmatter.place,
-            } as Post
+            } as TranslationItem
         })
 })
 
@@ -93,12 +74,12 @@ const isSameYear = (a?: Date | string | number, b?: Date | string | number) => {
     if (isNaN(yearA) || isNaN(yearB)) return false
     return yearA === yearB
 }
-function isSameGroup(a: Post, b?: Post) {
+function isSameGroup(a: TranslationItem, b?: TranslationItem) {
     if (!b) return false
     return isFuture(a.date) === isFuture(b.date) && isSameYear(a.date, b.date)
 }
 
-function getGroupName(p: Post) {
+function getGroupName(p: TranslationItem) {
     if (isFuture(p.date)) return 'Upcoming'
     const year = getYear(p.date)
     return isNaN(year) ? '' : year
@@ -179,25 +160,10 @@ function getGroupName(p: Post) {
                         </div>
 
                         <div flex="~ gap-2 items-center">
-                            <span
-                                v-if="!onlyDate && route.inperson"
-                                class="align-middle op50 flex-none i-ri:group-2-line"
-                                title="In person" />
-                            <span
-                                v-if="!onlyDate && (route.recording || route.video)"
-                                class="align-middle op50 flex-none i-ri:film-line"
-                                title="Provided in video" />
-                            <span
-                                v-if="!onlyDate && route.radio"
-                                class="align-middle op50 flex-none i-ri:radio-line"
-                                title="Provided in radio" />
-
                             <span text-sm op50 ws-nowrap>
                                 {{ formatDate(route.date, true) }}
                             </span>
                             <span v-if="!onlyDate && route.duration" text-sm op40 ws-nowrap>· {{ route.duration }}</span>
-                            <span v-if="!onlyDate && route.platform" text-sm op40 ws-nowrap>· {{ route.platform }}</span>
-                            <span v-if="!onlyDate && route.place" text-sm op40 ws-nowrap md:hidden>· {{ route.place }}</span>
                             <span
                                 v-if="route.lang === 'zh'"
                                 align-middle
@@ -214,9 +180,6 @@ function getGroupName(p: Post) {
                             </span>
                         </div>
                     </li>
-                    <div v-if="!onlyDate && route.place" op50 text-sm hidden mt--2 md:block>
-                        {{ route.place }}
-                    </div>
                 </component>
             </div>
         </template>
